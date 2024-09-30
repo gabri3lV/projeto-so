@@ -1,1 +1,1 @@
-# projeto-so
+Respositório do projeto de S.O.
