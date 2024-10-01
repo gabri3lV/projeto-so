@@ -26,6 +26,6 @@ int escalonamento();
 int aumentaPrioridade();
 int finalizaProcessos();
 int executaProcessos();
-int exibeResultados();
+int exibeResultados(struct Fila* fila);
 void inicializaFila(struct Fila* fila);
 void insereProcesso(struct Fila* fila, struct Processo processo);
