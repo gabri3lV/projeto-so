@@ -1,31 +1,45 @@
-// Definindo o tamanho máximo de processos que usarei
-#DEFINE MAX 10 
+#ifndef FUNCOES_H
+#define FUNCOES_H
 
-// Estrutura com as informações de um processo
+#define MAX 100
+#define MAX_PRIORIDADES 5
+#define QUANTUM 4 // valor fixo pra testar
+
+// Estrutura para representar um processo
 struct Processo {
     int id;
     int tempo_execucao;
     int tempo_restante;
     int prioridade;
     int tempo_espera;
-    int quantum;
     int tempo_aumento_prioridade;
 };
 
-// Estrutura da fila de processos
+// Estrutura para representar uma fila de processos
 struct Fila {
-    struct Processo processos[MAX];  // Array para armazenar os processos
-    int inicio;  // Índice do início da fila
-    int fim;     // Índice do final da fila
-    int tamanho; // Tamanho atual da fila
+    struct Processo* processos;
+    int inicio;
+    int fim;
+    int tamanho;
+    int capacidade;  // Adicionado o campo capacidade
 };
 
-// FUNÇÕES:
-void criaProcessos(struct Fila* fila, int num_processos);
-int escalonamento();
-int aumentaPrioridade();
-int finalizaProcessos();
-int executaProcessos();
-int exibeResultados(struct Fila* fila);
+// Estrutura para representar o gerenciador de filas
+struct GerenciadorFilas {
+    struct Fila filas[MAX_PRIORIDADES];
+};
+
+// Declaração das funções
 void inicializaFila(struct Fila* fila);
-void insereProcesso(struct Fila* fila, struct Processo processo);
+void inicializaGerenciador(struct GerenciadorFilas* gerenciador);
+void criaProcessosAleatorios(struct GerenciadorFilas* gerenciador, int num_processos);
+void criaProcessosUsuario(struct GerenciadorFilas* gerenciador, int num_processos);
+void escalonaProcessos(struct GerenciadorFilas* gerenciador);
+void exibeResultados(struct Fila* fila);
+void liberaGerenciador(struct GerenciadorFilas* gerenciador);
+struct Processo desenfileiraProcesso(struct Fila* fila); 
+void liberaFila(struct Fila* fila);
+int filaVazia(struct Fila* fila);
+void aumentaPrioridade(struct GerenciadorFilas* gerenciador);
+
+#endif // FUNCOES_H
