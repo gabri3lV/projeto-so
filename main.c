@@ -28,7 +28,7 @@ int main() {
     }
 
     // Executa o escalonador
-    escalonaProcessos(&gerenciador);
+    escalonaProcessos(&gerenciador, num_processos);
 
     // Exibe os resultados dos processos
     for (int i = 0; i < MAX_PRIORIDADES; ++i) {
