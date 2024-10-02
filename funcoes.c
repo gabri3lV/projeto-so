@@ -53,6 +53,8 @@ int filaVazia(struct Fila* fila) {
 void criaProcessosAleatorios(struct GerenciadorFilas* gerenciador, int num_processos) {
 
     srand(time(0)); 
+    int tempo_aumento_prioridade = rand() % 10 + 1; // Tempo FIXO para aumento de prioridade entre 1 e 10 
+
     for (int i = 0; i < num_processos && i < MAX; ++i) {
         struct Processo novo_processo;
         novo_processo.id = i + 1;
@@ -60,10 +62,11 @@ void criaProcessosAleatorios(struct GerenciadorFilas* gerenciador, int num_proce
         novo_processo.tempo_restante = novo_processo.tempo_execucao;
         novo_processo.prioridade = rand() % 5 + 1; // Prioridade entre 1 e 5
         novo_processo.tempo_espera = 0;
-        novo_processo.tempo_aumento_prioridade = rand() % 10 + 1; // Tempo para aumento de prioridade entre 1 e 10
-
+        novo_processo.tempo_aumento_prioridade = tempo_aumento_prioridade;
+        // Debug para verificar a criação e inserção do processo
+        printf("Criando processo ID: %d, Prioridade: %d, Tempo Execução: %d\n", novo_processo.id, novo_processo.prioridade, novo_processo.tempo_execucao);
         // Enfileirando
-         enfileiraProcesso(&gerenciador->filas[novo_processo.prioridade], novo_processo);
+        enfileiraProcesso(&gerenciador->filas[novo_processo.prioridade - 1], novo_processo);
     }
 }
 
@@ -85,7 +88,7 @@ void criaProcessosUsuario(struct GerenciadorFilas* gerenciador, int num_processo
         printf("Digite o tempo de aumento de prioridade do processo %d: ", i + 1);
         scanf("%d", &novo_processo.tempo_aumento_prioridade);
         
-        enfileiraProcesso(&gerenciador->filas[novo_processo.prioridade], novo_processo);
+        enfileiraProcesso(&gerenciador->filas[novo_processo.prioridade - 1], novo_processo);
     }
 }
 // Função para exibir os resultados  dos processos
@@ -138,19 +141,21 @@ void aumentaPrioridade(struct GerenciadorFilas* gerenciador) {
 
 // Função para escalonar os processos
 void escalonaProcessos(struct GerenciadorFilas* gerenciador) {
-    // Exibe o estado inicial dos processos
     printf("====================================\n");
     printf("Estado inicial dos processos:\n");
     for (int k = 0; k < MAX_PRIORIDADES; k++) {
         printf("Fila de prioridade %d:\n", k);
         exibeResultados(&gerenciador->filas[k]);
     }
+
     while (1) {
         int processos_restantes = 0;
 
         for (int i = 0; i < MAX_PRIORIDADES; ++i) {
             struct Fila* fila = &gerenciador->filas[i];
-            if (!filaVazia(fila)) {
+            
+            // Executa somente quando a fila atual tem processos
+            while (!filaVazia(fila)) {
                 processos_restantes = 1;
                 struct Processo processo = desenfileiraProcesso(fila);
 
@@ -158,11 +163,14 @@ void escalonaProcessos(struct GerenciadorFilas* gerenciador) {
                 printf("Executando processo %d da prioridade %d\n", processo.id, processo.prioridade);
                 int tempo_execucao = (processo.tempo_restante < QUANTUM) ? processo.tempo_restante : QUANTUM;
                 processo.tempo_restante -= tempo_execucao;
-                if (processo.tempo_restante > 0) {
-                    processo.tempo_espera += tempo_execucao;
-                    enfileiraProcesso(fila, processo);
-                } else {
+
+                // Verifica se o processo terminou
+                if (processo.tempo_restante <= 0) {
                     printf("Processo %d concluído\n", processo.id);
+                    processo.tempo_restante = 0;  // Garantir que não fique negativo
+                } else {
+                    printf("Processo %d re-enfileirado com tempo restante: %d\n", processo.id, processo.tempo_restante);
+                    enfileiraProcesso(&gerenciador->filas[processo.prioridade - 1], processo);
                 }
 
                 // Aumenta a prioridade dos processos se necessário
@@ -171,21 +179,24 @@ void escalonaProcessos(struct GerenciadorFilas* gerenciador) {
                 // Acompanhando o estado atual dos processos
                 printf("====================================\n");
                 printf("Estado atual dos processos:\n");
-                for (int k = 0; k < MAX_PRIORIDADES; k++){
+                for (int k = 0; k < MAX_PRIORIDADES; k++) {
                     printf("Fila de prioridade %d:\n", k);
                     exibeResultados(&gerenciador->filas[k]);
                 }
             }
         }
+
+        // Se não houver mais processos em nenhuma fila, sair do loop
         if (!processos_restantes) {
-            break;  // Todos os processos foram concluídos
+            break;
         }
+
         // Atualiza o tempo de espera para todos os processos nas filas
         for (int i = 0; i < MAX_PRIORIDADES; ++i) {
             struct Fila* fila = &gerenciador->filas[i];
             for (int j = 0; j < fila->tamanho; ++j) {
                 struct Processo* processo = &fila->processos[(fila->inicio + j) % fila->capacidade];
-                processo->tempo_espera += 1;  // aumenta o tempo de espera
+                processo->tempo_espera += 1;
             }
         }
     }
