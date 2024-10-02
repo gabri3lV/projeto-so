@@ -34,7 +34,7 @@ void inicializaFila(struct Fila* fila);
 void inicializaGerenciador(struct GerenciadorFilas* gerenciador);
 void criaProcessosAleatorios(struct GerenciadorFilas* gerenciador, int num_processos);
 void criaProcessosUsuario(struct GerenciadorFilas* gerenciador, int num_processos);
-void escalonaProcessos(struct GerenciadorFilas* gerenciador, int num_processos);
+void escalonaProcessos(struct GerenciadorFilas* gerenciador);
 void exibeResultados(struct Fila* fila);
 void liberaGerenciador(struct GerenciadorFilas* gerenciador);
 struct Processo desenfileiraProcesso(struct Fila* fila); 

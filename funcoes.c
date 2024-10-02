@@ -140,10 +140,10 @@ void aumentaPrioridade(struct GerenciadorFilas* gerenciador) {
 }
 
 // Função para escalonar os processos
-void escalonaProcessos(struct GerenciadorFilas* gerenciador, int num_processos) {
+void escalonaProcessos(struct GerenciadorFilas* gerenciador) {
     printf("====================================\n");
     printf("Estado inicial dos processos:\n");
-    for (int k = 0; k < num_processos+1; k++) {
+    for (int k = 0; k < MAX_PRIORIDADES; k++) {
         printf("Fila de prioridade %d:\n", k);
         exibeResultados(&gerenciador->filas[k]);
     }
@@ -179,7 +179,7 @@ void escalonaProcessos(struct GerenciadorFilas* gerenciador, int num_processos) 
                 // Acompanhando o estado atual dos processos
                 printf("====================================\n");
                 printf("Estado atual dos processos:\n");
-                for (int k = 0; k < num_processos+1; k++) {
+                for (int k = 0; k < MAX_PRIORIDADES; k++) {
                     printf("Fila de prioridade %d:\n", k+1);
                     exibeResultados(&gerenciador->filas[k]);
                 }
